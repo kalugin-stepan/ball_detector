@@ -7,8 +7,8 @@ ext_modules = [
     Pybind11Extension(
         'ball_detector',
         ['main.cpp'],
-        include_dirs=['C:/Program Files/opencv/build/include'],
-        library_dirs=['C:/Program Files/opencv/build/x64/vc15/lib'],
+        include_dirs=['D:/libs/opencv/build/include'],
+        library_dirs=['D:/libs/opencv/build/x64/vc15/lib'],
         libraries=['opencv_world460']
     )
 ]
