@@ -43,7 +43,7 @@ public:
         ball_detector_params.minInertiaRatio = 0.5f;
         blob_detector = cv::SimpleBlobDetector::create(ball_detector_params);
     }
-    py::array_t<Point> detect(py::array_t<uint8_t> data) {
+    py::array_t<Point> detect(py::array_t<uint8_t>& data) {
         py::buffer_info buf = data.request();
         cv::Mat img(data.shape(0), data.shape(1), CV_8UC3, (uchar*)buf.ptr);
         cv::Mat kernel_close = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
@@ -56,18 +56,19 @@ public:
 
         cv::Mat dst;
         cv::Mat dst1;
+        cv::Mat dst2;
 
         cv::cornerHarris(float_gray_img, dst, 2, 3, 0.04);
         cv::morphologyEx(dst, dst1, cv::MORPH_CLOSE, kernel_close);
-        cv::morphologyEx(dst1, dst, cv::MORPH_CLOSE, kernel_close);
+        cv::morphologyEx(dst1, dst2, cv::MORPH_CLOSE, kernel_close);
 
-        cv::Mat blank_img = cv::Mat::zeros(dst.rows, dst.cols, CV_8U);
+        cv::Mat blank_img(dst2.rows, dst2.cols, CV_8U);
 
-        float dst_max = max_f32(dst);
+        float dst_max = max_f32(dst2);
 
-        for (int i = 0; i < dst.rows; i++) {
-            for (int j = 0; j < dst.cols; j++) {
-                float dst_color = dst.at<float>(i, j);
+        for (int i = 0; i < dst2.rows; i++) {
+            for (int j = 0; j < dst2.cols; j++) {
+                float dst_color = dst2.at<float>(i, j);
                 if (dst_color > dst_max * 0.01f) blank_img.at<uint8_t>(i, j) = 255;
                 else blank_img.at<uint8_t>(i, j) = 0;
             }
